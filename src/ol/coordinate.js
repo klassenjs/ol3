@@ -126,6 +126,21 @@ ol.coordinate.createStringXY = function(opt_fractionDigits) {
  * @param {string} hemispheres Hemispheres.
  * @return {string} String.
  */
+ol.coordinate.degreesToStringHDM_ = function(degrees, hemispheres) {
+  var normalizedDegrees = goog.math.modulo(degrees + 180, 360) - 180;
+  var x = Math.abs(Math.round(6000 * normalizedDegrees));
+  return Math.floor(x / 6000) + '\u00b0' +
+      ((x / 100) % 60).toFixed(2) + '\u2032' +
+      hemispheres.charAt(normalizedDegrees < 0 ? 1 : 0);
+};
+
+
+/**
+ * @private
+ * @param {number} degrees Degrees.
+ * @param {string} hemispheres Hemispheres.
+ * @return {string} String.
+ */
 ol.coordinate.degreesToStringHDMS_ = function(degrees, hemispheres) {
   var normalizedDegrees = goog.math.modulo(degrees + 180, 360) - 180;
   var x = Math.abs(Math.round(3600 * normalizedDegrees));
@@ -277,6 +292,30 @@ ol.coordinate.squaredDistance = function(coord1, coord2) {
 ol.coordinate.squaredDistanceToSegment = function(coordinate, segment) {
   return ol.coordinate.squaredDistance(coordinate,
       ol.coordinate.closestOnSegment(coordinate, segment));
+};
+
+
+/**
+ * Format a geographic coordinate with the hemisphere, degrees, and
+ * decimal minutes.
+ *
+ * Example:
+ *
+ *     var coord = [7.85, 47.983333];
+ *     var out = ol.coordinate.toStringHDM(coord);
+ *     // out is now '47°59.00′N 7°51.00′E'
+ *
+ * @param {ol.Coordinate|undefined} coordinate Coordinate.
+ * @return {string} Hemisphere, degrees, and decimal minutes.
+ * @api stable
+ */
+ol.coordinate.toStringHDM = function(coordinate) {
+  if (coordinate) {
+    return ol.coordinate.degreesToStringHDM_(coordinate[1], 'NS') + ' ' +
+        ol.coordinate.degreesToStringHDM_(coordinate[0], 'EW');
+  } else {
+    return '';
+  }
 };
 
 
